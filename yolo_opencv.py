@@ -4,7 +4,7 @@ import pyttsx3
 import threading
 import speech_recognition as sr
 
-# Specify the paths to the image, config file, weights, and classes file
+# Specify the paths to the config file, weights, and classes file
 config_path = r'C:\Users\ADMIN\Desktop\python_scripts\yolov3.cfg'
 weights_path = r'C:\Users\ADMIN\Desktop\python_scripts\yolov3.weights'
 classes_path = r'C:\Users\ADMIN\Desktop\python_scripts\yolov3.txt'
