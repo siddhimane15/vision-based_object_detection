@@ -64,13 +64,21 @@ def handle_detected_objects(boxes, class_ids, confidences):
             detected_objects.append(classes[class_ids[i]])
     return detected_objects
 
+
+
 def respond_to_objects(detected_objects):
     if detected_objects:
-        engine.say(f"The detected objects are: {', '.join(detected_objects)}")
-        engine.runAndWait()
+        label = str(classes[class_id])
+        response_engine = pyttsx3.init(threading=False)  # Set threading to False
+        text = f"There is a : {(label)} in front of you"
+        response_engine.say(text)
+        print(f"There is a : {(label)} in front of you")
+        response_engine.runAndWait()
     else:
-        engine.say("Object not recognized.")
+        engine.say("Object not found.")
         engine.runAndWait()
+
+
 
 def speech_recognition_thread():
     global handle_objects
@@ -86,12 +94,14 @@ def speech_recognition_thread():
         try:
             command = recognizer.recognize_google(audio).lower()
             print("You said:", command)
-            if "what is in front of me" in command:
+            if "tell me" in command:
                 engine.say("Observing the surrounding area. Please wait.")
                 engine.runAndWait()
                 handle_objects = True
                 time.sleep(5)  # Wait for 5 seconds for observation
                 handle_objects = False
+                detected_objects = handle_detected_objects(boxes, class_ids, confidences)
+                #respond_to_objects(detected_objects)
         except sr.UnknownValueError:
             pass
         except sr.RequestError as e:
@@ -142,7 +152,6 @@ while True:
 
         detected_objects = handle_detected_objects(boxes, class_ids, confidences)
 
-
     except Exception as e:
         # Handle exception (no objects detected)
         pass
@@ -152,6 +161,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release the camera and close the window
+
 cap.release()
 cv2.destroyAllWindows()
