@@ -3,8 +3,9 @@ import numpy as np
 import pyttsx3
 import threading
 import speech_recognition as sr
+import time
 
-# Specify the paths to the config file, weights, and classes file
+# Specify the paths to the image, config file, weights, and classes file
 config_path = r'C:\Users\ADMIN\Desktop\python_scripts\yolov3.cfg'
 weights_path = r'C:\Users\ADMIN\Desktop\python_scripts\yolov3.weights'
 classes_path = r'C:\Users\ADMIN\Desktop\python_scripts\yolov3.txt'
@@ -22,9 +23,12 @@ net = cv2.dnn.readNet(weights_path, config_path)
 engine = pyttsx3.init()
 
 # Set the rate (adjust this value to control the speed)
-#engine.setProperty('rate', 1)
+# engine.setProperty('rate', 1)
 
 cap = cv2.VideoCapture(0)
+
+# Flag to determine whether to handle detected objects
+handle_objects = False
 
 def get_output_layers(net):
     layer_names = net.getLayerNames()
@@ -40,24 +44,24 @@ def draw_prediction(img, class_id, confidence, x, y, x_plus_w, y_plus_h):
     color = COLORS[class_id]
     cv2.rectangle(img, (x, y), (x_plus_w, y_plus_h), color, 2)
     cv2.putText(img, label, (x-10, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-    text = f"there is a {label} in front of you"      #spech engine parameters
+    text = f"There is a {label} in front of you."  # Speech engine parameters
     print(text)
     engine.say(text)
     engine.runAndWait()
-    #time.sleep()
-
-
+    #time.sleep(1/20)
+    time.sleep()
 
 def handle_detected_objects(boxes, class_ids, confidences):
     detected_objects = []
-    for i in range(len(boxes)):
-        box = boxes[i]
-        x = box[0]
-        y = box[1]
-        w = box[2]
-        h = box[3]
-        draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x+w), round(y+h))
-        detected_objects.append(classes[class_ids[i]])
+    if handle_objects:
+        for i in range(len(boxes)):
+            box = boxes[i]
+            x = box[0]
+            y = box[1]
+            w = box[2]
+            h = box[3]
+            draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x+w), round(y+h))
+            detected_objects.append(classes[class_ids[i]])
     return detected_objects
 
 def respond_to_objects(detected_objects):
@@ -69,6 +73,7 @@ def respond_to_objects(detected_objects):
         engine.runAndWait()
 
 def speech_recognition_thread():
+    global handle_objects
     recognizer = sr.Recognizer()
     microphone = sr.Microphone()
 
@@ -81,16 +86,20 @@ def speech_recognition_thread():
         try:
             command = recognizer.recognize_google(audio).lower()
             print("You said:", command)
-            if "what is in the frame" in command:
-                respond_to_objects(detected_objects)
+            if "what is in front of me" in command:
+                engine.say("Observing the surrounding area. Please wait.")
+                engine.runAndWait()
+                handle_objects = True
+                time.sleep(5)  # Wait for 5 seconds for observation
+                handle_objects = False
         except sr.UnknownValueError:
             pass
         except sr.RequestError as e:
             print(f"Speech recognition request failed: {e}")
 
 # Start the thread for speech recognition
-#speech_thread = threading.Thread(target=speech_recognition_thread)
-#speech_thread.start()
+speech_thread = threading.Thread(target=speech_recognition_thread)
+speech_thread.start()
 
 while True:
     ret, frame = cap.read()
