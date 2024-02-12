@@ -15,6 +15,7 @@ When it comes to object detection, popular detection frameworks are
   * pyttsx3
   * threading
   * speech_recognition
+  * ultralytics
   
 `pip install numpy opencv-python`
 
