@@ -1,4 +1,4 @@
-# Object detection using deep learning with OpenCV and Python 
+# Object detection and audio transformatio using deep learning with OpenCV and Python 
 
 OpenCV `dnn` module supports running inference on pre-trained deep learning models from popular frameworks like Caffe, Torch and TensorFlow. 
 
@@ -12,6 +12,9 @@ When it comes to object detection, popular detection frameworks are
  ## Dependencies
   * opencv
   * numpy
+  * pyttsx3
+  * threading
+  * speech_recognition
   
 `pip install numpy opencv-python`
 
